@@ -1,0 +1,38 @@
+
+  version: '3.8'
+  services:
+    mongo:
+      image: mongo:5.0
+      container_name: mongodb
+      ports:
+        - "27018:27017"
+      volumes:
+        - mongo-db:/data/db
+      networks:
+        - app-network
+    boot-app:
+      image: manuk8789/chatback:latest
+      build:
+        context: .
+        dockerfile: Dockerfile
+      ports:
+        - "8081:8081"
+      environment:
+        - SPRING_DATA_MONGODB_URI=mongodb://mongo:27017/chatapp
+      depends_on:
+        - mongo
+      networks:
+        - app-network
+    react-service:
+      image: manuk8789/frontchat
+      build:
+        context: ../../frontend
+        dockerfile: Dockerfile
+      ports:
+        - "5173:80"
+      networks:
+        - app-network
+  volumes:
+    mongo-db:
+  networks:
+    app-network:
